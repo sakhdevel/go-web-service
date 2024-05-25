@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"sakhdevel/go-web-service/db"
 	"sakhdevel/go-web-service/utils"
 )
@@ -35,4 +36,25 @@ func (u User) Save() error {
 
 	u.Id = userId
 	return err
+}
+
+func (u User) ValidateCredentials() error {
+
+	query := "SELECT password from users where email = ?"
+	row := db.DB.QueryRow(query, u.Email)
+
+	var retrievedPassword string
+	err := row.Scan(&retrievedPassword)
+
+	if err != nil {
+		return errors.New("credentials invalid")
+	}
+
+	passwordIsValid := utils.CheckPasswordHash(u.Password, retrievedPassword)
+
+	if !passwordIsValid {
+		return errors.New("credentials invalid")
+	}
+
+	return nil
 }
