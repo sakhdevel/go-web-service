@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"sakhdevel/go-web-service/models"
+	"sakhdevel/go-web-service/utils"
 )
 
 func signup(context *gin.Context) {
@@ -50,5 +51,17 @@ func login(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+	token, err := utils.GenerateToken(user.Email, user.Id)
+	if err != nil {
+		context.JSON(
+			http.StatusInternalServerError,
+			gin.H{"message": "Could not authenticate user"},
+		)
+		return
+	}
+
+	context.JSON(
+		http.StatusOK,
+		gin.H{"message": "Login successful", "token": token},
+	)
 }
