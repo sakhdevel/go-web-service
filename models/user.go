@@ -1,11 +1,14 @@
 package models
 
-import "sakhdevel/go-web-service/db"
+import (
+	"sakhdevel/go-web-service/db"
+	"sakhdevel/go-web-service/utils"
+)
 
 type User struct {
-	id       int64
-	email    string `binding:"required"`
-	password string `binding:"required"`
+	Id       int64
+	Email    string `binding:"required"`
+	Password string `binding:"required"`
 }
 
 func (u User) Save() error {
@@ -17,13 +20,19 @@ func (u User) Save() error {
 	}
 
 	defer stmt.Close()
-	result, err := stmt.Exec(u.email, u.password)
+
+	hashedPassword, err := utils.HashPassword(u.Password)
+	if err != nil {
+		return err
+	}
+
+	result, err := stmt.Exec(u.Email, hashedPassword)
 	if err != nil {
 		return err
 	}
 
 	userId, err := result.LastInsertId()
 
-	u.id = userId
+	u.Id = userId
 	return err
 }
