@@ -64,7 +64,7 @@ func createTables() {
 	FOREIGN KEY (user_id) REFERENCES users(id)
 	)`
 
-	_, err := DB.Exec(createRegistrationsTable)
+	_, err = DB.Exec(createRegistrationsTable)
 	if err != nil {
 		panic("Could not create registration table")
 	}
